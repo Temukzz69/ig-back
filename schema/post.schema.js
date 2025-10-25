@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
-import Schema from "mongoose";
-const postModel = new mongoose.Schema({
+
+const postSchema = new mongoose.Schema({
   caption: { type: String, required: true },
-  image: { type: [{ type: String, required: true }], required: true },
-  likes: [{ type: Schema.Types.ObjectId, required: true }],
-  user: [{ type: Schema.Types.ObjectId, required: true }],
-  createdAt: { type: Date, default: Date.now() },
-  updatedAt: { type: Date, default: Date.now() },
+  image: { type: [String], required: true },
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
-export const postsModel = mongoose.model("posts", postModel);
+
+export const postsModel = mongoose.model("posts", postSchema);

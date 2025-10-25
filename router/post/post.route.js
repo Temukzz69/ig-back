@@ -1,8 +1,28 @@
-import express from " express";
-import { getPosts } from "../../controller/post/get-posts";
-import { createPosts } from "../../controller/post/create-post";
-import { authMiddleware } from "../../../ig-frontend/src/app/middleware/auth-middleware";
-const postRouter = express.Router();
-postRouter.get("/", authMiddleware, getPosts);
-postRouter.post("/", authMiddleware, createPosts);
-export default postRouter;
+import express from "express";
+import { authMiddleware } from "../../middleware/auth-middleware.js";
+import { postsModel } from "../../schema/post.schema.js";
+
+const router = express.Router();
+
+router.get("/getPosts", async (_req, res) => {
+  try {
+    const posts = await postsModel.find().populate("user", "userName email");
+    res.status(200).json(posts);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.post("/createPosts", authMiddleware, async (req, res) => {
+  const { caption, image } = req.body;
+  const user = req.user;
+
+  try {
+    const createdPost = await postsModel.create({ user, caption, image });
+    res.status(201).json(createdPost);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+export default router;

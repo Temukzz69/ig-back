@@ -1,16 +1,23 @@
 import jwt from "jsonwebtoken";
 
 export const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) res.status(400).json({ message: "need auth header" });
+  const authHeader = req.headers["authorization"];
+  if (!authHeader)
+    return res.status(400).json({ message: "Authorization header required" });
 
-  const accesstoken = authHeader.split(" ")[1];
-  if (!accesstoken) res.status(400).json({ message: "need auth token" });
+  const tokenParts = authHeader.split(" ");
+  if (tokenParts.length !== 2 || tokenParts[0] !== "Bearer")
+    return res
+      .status(400)
+      .json({ message: "Invalid authorization format. Use: Bearer <token>" });
 
-  const user = jwt.verify(accesstoken, "nuuts shu!");
-  if (!user) res.status(400).json({ message: "need to sign in" });
+  const token = tokenParts[1];
 
-  req.user = user.data;
-
-  next();
+  try {
+    const decoded = jwt.verify(token, "nuuts shu!");
+    req.user = decoded.data;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
 };
