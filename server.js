@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 
 import { userModel } from "./schema/schema.js";
 import postRouter from "./router/post/post.route.js";
+import UserRouter from "./router/post/user.route.js";
 
 const app = express();
 app.use(express.json());
@@ -18,49 +19,22 @@ const ConnectToDB = async () => {
     await mongoose.connect(
       "mongodb+srv://temuky2_db_user:tenuun1234@cluster0.vsdz24u.mongodb.net/"
     );
-    console.log("✅ MongoDB connected");
+    console.log(" MongoDB connected");
   } catch (err) {
-    console.error("❌ MongoDB connection failed:", err.message);
+    console.error(" MongoDB connection failed:", err.message);
   }
 };
 ConnectToDB();
 
-app.post("/user", async (req, res) => {
-  const { userName, email, password } = req.body;
-  const saltRound = 10;
+app.use("/user", UserRouter);
 
-  const Exists = await userModel.findOne({ email });
-  if (Exists)
-    return res.status(404).json({ message: "account already exists" });
 
-  const HashedPassword = await hash(password, saltRound);
-  const SignUp = await userModel.create({
-    userName,
-    email,
-    password: HashedPassword,
-  });
-
-  res.status(201).json(SignUp);
+app.post("/getPosts", async (_req, res) => {
+  const posts = await postsModel.find().populate("user");
+  res.status(200).json(posts);
 });
-
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-  const JWT_SECRET = "nuuts shu!";
-
-  const user = await userModel.findOne({ email });
-  if (!user) return res.status(404).json({ message: "need to register" });
-
-  const IsValid = await compare(password, user.password);
-  if (!IsValid) return res.status(404).json({ message: "wrong password" });
-
-  const accessToken = jwt.sign({ data: user._id }, JWT_SECRET, {
-    expiresIn: "200000000h",
-  });
-  res.json({ token: accessToken });
-});
-
 app.use(postRouter);
 
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(` Server running at http://localhost:${PORT}`);
 });

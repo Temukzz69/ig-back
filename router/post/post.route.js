@@ -1,7 +1,8 @@
 import express from "express";
 import { authMiddleware } from "../../middleware/auth-middleware.js";
 import { postsModel } from "../../schema/post.schema.js";
-
+import { createPosts } from "../../controller/post/create-post.js";
+import { getPosts } from "../../controller/post/get-posts.js";
 const router = express.Router();
 
 router.get("/getPosts", async (_req, res) => {
@@ -13,16 +14,6 @@ router.get("/getPosts", async (_req, res) => {
   }
 });
 
-router.post("/createPosts", authMiddleware, async (req, res) => {
-  const { caption, image } = req.body;
-  const user = req.user;
-
-  try {
-    const createdPost = await postsModel.create({ user, caption, image });
-    res.status(201).json(createdPost);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
+router.post("/createPosts", authMiddleware, createPosts);
+router.get("/getPosts", authMiddleware, getPosts);
 export default router;
