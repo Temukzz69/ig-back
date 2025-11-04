@@ -5,7 +5,7 @@ import router from "./post.route.js";
 
 const UserRouter = express.Router;
 
-router.post("/login", login);
-router.post("/signup", SignUp);
+router.post("/login", authMiddleware, login);
+router.post("/SignUp", authMiddleware, SignUp);
 
 export default UserRouter;

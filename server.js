@@ -1,10 +1,9 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import { hash, compare } from "bcrypt";
+
 import jwt from "jsonwebtoken";
 
-import { userModel } from "./schema/schema.js";
 import postRouter from "./router/post/post.route.js";
 import UserRouter from "./router/post/user.route.js";
 
@@ -28,11 +27,6 @@ ConnectToDB();
 
 app.use("/user", UserRouter);
 
-
-app.post("/getPosts", async (_req, res) => {
-  const posts = await postsModel.find().populate("user");
-  res.status(200).json(posts);
-});
 app.use(postRouter);
 
 app.listen(PORT, () => {
